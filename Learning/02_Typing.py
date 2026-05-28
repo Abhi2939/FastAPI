@@ -6,4 +6,11 @@ def process_items(prices: dict[str,float]):
         print(item_name)
         print(item_price)
 
-    
+def process_item(item: int | str):
+    print(item)
+
+def say_hi(name: str | None = None):
+    if name is not None:
+        print(f"Hey{name}!")
+    else:
+        print("Hello World")
