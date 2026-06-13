@@ -4,6 +4,12 @@ from app.db import Post,create_db_and_tables,get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager
 from sqlalchemy import select 
+from app.images import imagekit
+from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions
+import shutil
+import os
+import uuid
+import tempfile
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
@@ -51,3 +57,23 @@ async def get_feed(
 
     
     return {"post":posts_data}
+
+
+@app.delete("/posts/{post_id}")
+async def delete_post(post_id:str,session:AsyncSession = Depends(get_async_session)):
+
+    try:
+        post_uuid = uuid.UUID(post_id)
+
+        result = await session.execute(select(Post).where(Post.id == post_uuid))
+        post = result.scalars().first()
+
+        if not post:
+            raise HTTPException(status_code=404,detail="Post Not Found")
+        
+        await session.delete(post)
+        await session.commit()
+
+        return {"success":True,"message":"Post deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500,detail=str(e))
