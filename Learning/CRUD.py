@@ -48,13 +48,13 @@ def get_item(item_id: int,test: int,name:Optional[str] = None):
     for item_id in invertory:
         if invertory[item_id].name == name:
             return invertory[item_id]
-    return {"Data":"Not Found"}
-
+        raise HTTPException(status_code=404,detail="Item ID not found")
+    
 @app.post("/create-item/{item_id}")
 def create_item(item_id: int,item:Item):
 
     if item_id in invertory:
-        return {"Error":"Item ID already exist"}
+        raise HTTPException(status_code=400,detail="Item ID already exists")
     
     # invertory[item_id] = {
     #     "name":item.name,
@@ -69,7 +69,7 @@ def create_item(item_id: int,item:Item):
 def update_item(item_id:int,item:UpdateItem):
     
     if item_id in invertory:
-        return {"Error":"Item ID not in inventory"}
+        raise HTTPException(status_code=404,detail="Item ID not found")
     
     if item.name != None:
         invertory[item_id].name = item.name
@@ -86,7 +86,7 @@ def update_item(item_id:int,item:UpdateItem):
 def delete_item(item_id: int = Query(...,description="ID of the item to be deleted")):
 
     if item_id not in invertory:
-        return {"Error":"Item ID not in inventory"}
+        raise HTTPException(status_code=404,detail="Item ID not found")
     
     del invertory[item_id]
 
